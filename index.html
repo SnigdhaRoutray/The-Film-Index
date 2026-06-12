@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Film Index: The Art of Finding Films</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --cream: #EDE8DF;
+      --cream2: #E2DBD0;
+      --ink: #1A1814;
+      --red: #C0392B;
+      --red-dim: #8B2A1E;
+      --gold: #B5863A;
+      --muted: #7A746A;
+      --border: rgba(26, 24, 20, 0.13);
+      --card-bg: #F8F4EE;
+      --card-hover: #FFFFFF;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .page-wrapper {
+      display: block;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 2.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .brand {
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand span {
+      color: var(--red);
+    }
+
+    .topbar-stats {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    .topbar-stats strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 45% 55%;
+      gap: 2rem;
+
+      align-items: center;
+
+      padding: 2rem 2.5rem;
+      border-bottom: 0.5px solid var(--border);
+
+      min-height: 380px;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .eyebrow-line {
+      width: 32px;
+      height: 1px;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    .eyebrow-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(65px, 6.5vw, 70px);
+      font-weight: 900;
+      line-height: .93;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--red);
+    }
+
+    .hero-sub {
+      font-size: 13.5px;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.75;
+    }
+    .hero-content {
+      max-width: 500px;
+      padding-left: 10rem;
+    }
+
+    .hero-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 750px;
+      height: auto;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+      /* Fade toward center, solid at edges */
+      -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 50%,
+        black 10%,
+        rgba(0,0,0,0.6) 65%,
+        rgba(0,0,0,0.1) 85%,
+        transparent 100%
+      );
+      mask-image: radial-gradient(ellipse 75% 80% at 50% 50%,
+        black -20%,
+        rgba(0,0,0,0.6) 65%,
+        rgba(0,0,0,0.1) 85%,
+        transparent 1000%
+      );
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .hero-image img.img-loaded {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* ── SEARCH ── */
+    .search-section {
+      padding: 2.8rem 2.5rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .search-inner {
+      width: 100%;
+      max-width: 820px;
+    }
+
+    .search-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .7rem;
+      display: block;
+    }
+
+    .search-row {
+      display: flex;
+      border: 1px solid rgba(26, 24, 20, .18);
+      background: #fff;
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-row:focus-within {
+      border-color: var(--ink);
+      box-shadow: 0 4px 24px rgba(26,24,20,.08);
+    }
+
+    #q {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 1rem 1.3rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-style: italic;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    #q::placeholder {
+      color: var(--muted);
+      opacity: .55;
+    }
+
+    .search-btn {
+      padding: 0 1.6rem;
+      background: var(--red);
+      border: none;
+      color: #fff;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s;
+      white-space: nowrap;
+      min-height: 52px;
+    }
+
+    .search-btn:hover {
+      background: var(--red-dim);
+    }
+
+    .search-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+
+    .filter-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .filter-group select, .filter-group input[type=number] {
+      border: 0.5px solid var(--border);
+      background: transparent;
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      color: var(--ink);
+      padding: .5rem .8rem;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .filter-group select {
+      min-width: 140px;
+      padding-right: 1.8rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A746A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    .filter-group input[type=number] {
+      width: 88px;
+    }
+
+    .tags-row {
+      margin-top: 1rem;
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tag-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: .2rem;
+    }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: .35rem .75rem;
+      border: 0.5px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      background: transparent;
+      letter-spacing: .04em;
+      user-select: none;
+    }
+
+    .tag:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      background: rgba(26, 24, 20, .05);
+    }
+
+    /* ── STICKY SEARCH BAR ── */
+    .search-sticky {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(237, 232, 223, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 0.5px solid var(--border);
+      padding: .7rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      transform: translateY(-110%);
+      transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease;
+      pointer-events: none;
+    }
+
+    .search-sticky.visible {
+      transform: translateY(0);
+      pointer-events: all;
+      box-shadow: 0 4px 24px rgba(26,24,20,.09);
+    }
+
+    .sticky-brand {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--ink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sticky-brand span { color: var(--red); }
+
+    .search-sticky .search-row {
+      flex: 1;
+      max-width: 520px;
+      box-shadow: none;
+      border-color: rgba(26,24,20,.14);
+    }
+
+    .search-sticky .search-row:focus-within {
+      border-color: var(--ink);
+      box-shadow: 0 2px 12px rgba(26,24,20,.08);
+    }
+
+    /* ── RESULTS ── */
+    .results-section {
+      padding: 1.8rem 2.5rem 4rem;
+      flex: 1;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .5s ease .1s, transform .5s cubic-bezier(.22,1,.36,1) .1s;
+    }
+    .results-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .results-section.has-results {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .results-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .results-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+    }
+
+    .state-msg {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-style: italic;
+      color: var(--muted);
+      opacity: .45;
+      text-align: center;
+      padding: 3.5rem 0;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 2px solid rgba(26, 24, 20, .1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 3.5rem auto;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── ENTRANCE ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Hero content staggered entrance */
+    .hero-eyebrow  { opacity: 0; animation: slideRight .55s cubic-bezier(.22,1,.36,1) .1s forwards; }
+    .hero h1       { opacity: 0; animation: fadeUp .65s cubic-bezier(.22,1,.36,1) .22s forwards; }
+    .hero-sub      { opacity: 0; animation: fadeUp .6s  cubic-bezier(.22,1,.36,1) .38s forwards; }
+    .hero-image    { opacity: 0; animation: fadeIn .9s  ease .45s forwards; }
+    .topbar        { opacity: 0; animation: fadeIn .45s ease .05s forwards; }
+
+    /* ── SCROLL-REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: .08s; }
+    .reveal-delay-2 { transition-delay: .16s; }
+    .reveal-delay-3 { transition-delay: .26s; }
+
+    /* ── TAG CLICK RIPPLE ── */
+    .tag {
+      position: relative;
+      overflow: hidden;
+    }
+    .tag::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--ink);
+      opacity: 0;
+      transform: scale(0);
+      border-radius: 50%;
+      transition: transform .35s ease, opacity .35s ease;
+      pointer-events: none;
+    }
+    .tag.ripple::after {
+      transform: scale(3);
+      opacity: .08;
+    }
+
+    /* ── GENRE CHIP CLICK ── */
+    .genre-chip {
+      position: relative;
+      overflow: hidden;
+    }
+    .genre-chip::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--cream);
+      opacity: 0;
+      transform: scale(0);
+      transition: transform .3s ease, opacity .3s ease;
+      pointer-events: none;
+    }
+    .genre-chip.ripple::after {
+      transform: scale(3);
+      opacity: .15;
+    }
+
+    /* ── SEARCH BUTTON press + glow ── */
+    .search-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .search-btn::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.25);
+      opacity: 0;
+      transform: scale(0);
+      border-radius: 50%;
+      transition: transform .4s ease, opacity .4s ease;
+      pointer-events: none;
+    }
+    .search-btn.ripple::after {
+      transform: scale(4);
+      opacity: 1;
+    }
+    .search-btn:active {
+      transform: scale(.97);
+    }
+
+    /* ── CARD HOVER LIFT ── */
+    .movie-card {
+      transition: background .15s, transform .22s cubic-bezier(.22,1,.36,1),
+                  box-shadow .22s cubic-bezier(.22,1,.36,1);
+    }
+    .movie-card:hover {
+      background: var(--card-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(26,24,20,.12);
+      z-index: 2;
+    }
+
+    /* ── SCORE BAR ANIMATE IN ── */
+    .card-score-fill {
+      height: 2px;
+      background: var(--red);
+      width: 0 !important;
+      transition: width .7s cubic-bezier(.22,1,.36,1);
+    }
+    .card-score-fill.bar-ready {
+      width: var(--target-width) !important;
+    }
+
+    /* ── SEARCH ROW GLOW ON FOCUS ── */
+    .search-row {
+      transition: border-color .2s, box-shadow .3s cubic-bezier(.22,1,.36,1);
+    }
+    .search-row:focus-within {
+      border-color: var(--ink);
+      box-shadow: 0 4px 32px rgba(26,24,20,.11), 0 0 0 3px rgba(192,57,43,.07);
+    }
+
+    /* ── MODAL ENTRANCE ── */
+    .modal {
+      transform: translateY(24px) scale(.982);
+      transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease;
+    }
+    .modal-backdrop.open .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    /* ── STICKY BAR SMOOTH ── */
+    .search-sticky {
+      transition: transform .38s cubic-bezier(.22,1,.36,1),
+                  box-shadow .38s ease;
+    }
+    .search-sticky.visible {
+      box-shadow: 0 4px 24px rgba(26,24,20,.1);
+    }
+
+    /* results-section animation handled above */
+
+    /* ── RESULTS HORIZONTAL SCROLL STRIP ── */
+    .results-grid {
+      display: flex;
+      flex-direction: row;
+      gap: 1px;
+      background: var(--border);
+      border: 0.5px solid var(--border);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 0;
+    }
+    .results-grid::-webkit-scrollbar { display: none; }
+
+    /* scroll nav arrows */
+    .scroll-nav {
+      display: none;
+      align-items: center;
+      gap: .4rem;
+      margin-top: .8rem;
+    }
+    .scroll-nav.show { display: flex; }
+    .scroll-arrow {
+      width: 32px; height: 32px;
+      border: 0.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--ink);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; line-height: 1;
+      transition: background .15s, color .15s, border-color .15s, transform .15s;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .scroll-arrow:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .scroll-arrow:active { transform: scale(.92); }
+    .scroll-arrow:disabled { opacity: .25; pointer-events: none; }
+
+    /* ── CARD ENTRANCE ANIMATION ── */
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateX(32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── MOVIE CARD ── */
+    .movie-card {
+      background: var(--card-bg);
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      animation: cardReveal .5s cubic-bezier(.22,1,.36,1) forwards;
+      flex: 0 0 200px;
+      width: 200px;
+      scroll-snap-align: start;
+    }
+
+    .movie-card:hover {
+      background: var(--card-hover);
+    }
+
+    .card-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+      background: var(--cream2);
+    }
+
+    .card-poster-placeholder {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: var(--cream2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-poster-placeholder svg {
+      width: 32px;
+      height: 32px;
+      opacity: .25;
+      stroke: var(--ink);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .card-body {
+      padding: .9rem 1rem 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-genre {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .35rem;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: .2rem;
+      flex: 1;
+    }
+
+    .card-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 9.5px;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+
+    .card-score-bar {
+      height: 2px;
+      background: rgba(26, 24, 20, .08);
+    }
+
+    .card-score-fill {
+      height: 2px;
+      background: var(--red);
+      transition: width .4s ease;
+    }
+
+    /* ── HOVER TOOLTIP ── */
+    .card-tooltip {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--ink);
+      color: var(--cream);
+      padding: .7rem .9rem;
+      font-size: 11.5px;
+      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .18s ease, transform .18s ease;
+      pointer-events: none;
+      z-index: 5;
+      max-height: 90px;
+      overflow: hidden;
+    }
+
+    .movie-card:hover .card-tooltip {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: none;
+    }
+
+    /* ── DETAIL MODAL ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(15, 12, 10, .75);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity .22s ease;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+    }
+
+    .modal {
+      background: var(--cream);
+      width: 100%; max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(18px) scale(.985);
+      transition: transform .25s ease, opacity .25s ease;
+      opacity: 0;
+      display: flex;
+    }
+
+    .modal-backdrop.open .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-poster-col {
+      width: 240px;
+      flex-shrink: 0;
+      position: relative;
+      background: var(--cream2);
+    }
+
+    .modal-poster-col img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-poster-placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-poster-placeholder svg {
+      width: 52px;
+      height: 52px;
+      opacity: .2;
+      stroke: var(--ink);
+      fill: none;
+      stroke-width: 1.2;
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 2rem 2rem 2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-genre {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .5rem;
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: .35rem;
+    }
+
+    .modal-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
+      letter-spacing: .04em;
+    }
+
+    .modal-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .4rem;
+      display: block;
+    }
+
+    .modal-plot {
+      font-size: 13.5px;
+      line-height: 1.72;
+      color: var(--ink);
+      opacity: .8;
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-cast {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .modal-cast-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      padding: .28rem .65rem;
+      border: 0.5px solid var(--border);
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .modal-score {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+    }
+
+    .modal-wiki {
+      font-family: 'DM Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+      text-decoration: none;
+      margin-left: auto;
+    }
+
+    .modal-wiki:hover {
+      text-decoration: underline;
+    }
+
+    .modal-close {
+      position: absolute; top: .9rem; right: .9rem;
+      width: 30px; height: 30px;
+      background: var(--ink); color: var(--cream);
+      border: none; cursor: pointer;
+      font-size: 16px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 5; transition: background .15s;
+    }
+
+    .modal-close:hover {
+      background: var(--red);
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      border-left: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-img {
+      flex: 1;
+      position: relative;
+      background-color: var(--cream2);
+      background-image: url('/Cinema.jpeg');
+      background-size: cover;
+      background-position: center 30%;
+      overflow: hidden;
+    }
+
+    .panel-img::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom,
+        var(--cream) 0%,
+        transparent 20%,
+        transparent 60%,
+        var(--cream) 100%
+      );
+      z-index: 1;
+    }
+
+    .panel-img-text {
+      position: absolute;
+      bottom: 2rem; left: 1.8rem; right: 1.8rem;
+      z-index: 2;
+    }
+
+    .panel-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: .7rem;
+    }
+
+    .panel-quote em {
+      font-style: normal;
+      color: var(--red);
+    }
+
+    .panel-stats {
+      display: flex;
+      gap: 1.4rem;
+    }
+
+    .panel-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--ink);
+      display: block;
+    }
+
+    .panel-stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+    }
+
+    /* Bottom genre strip */
+    .panel-genres {
+      padding: 1.1rem 1.8rem;
+      border-top: 0.5px solid var(--border);
+      background: var(--cream2);
+    }
+
+    .panel-genres-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: .5rem;
+    }
+
+    .genre-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .genre-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: .28rem .65rem;
+      border: 0.5px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      background: transparent;
+      letter-spacing: .04em;
+      user-select: none;
+    }
+
+    .genre-chip:hover {
+      background: var(--ink);
+      color: var(--cream);
+      border-color: var(--ink);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:800px) {
+      .page-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .right-panel {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+    <main style="display:flex; flex-direction:column; min-width:0">
+      <header class="topbar">
+        <a href="/" class="brand"><span>The</span> Film Index</a>
+        <div class="topbar-stats" id="topbar-stats">— · —</div>
+      </header>
+
+      <section class="hero">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <div class="eyebrow-line"></div>
+          <span class="eyebrow-text">Machine Learning · <span id="hero-count">—</span> Films</span>
+        </div>
+        <h1>The Art<br>of <em>Finding</em><br>Films</h1>
+        <p class="hero-sub">Describe a plot, a feeling, a character, or simply type a title to find your movie. </p>
+        </div>
+        <div class="hero-image">
+          <img src="/Cinema.jpeg" alt="Cinema" id="hero-img" onload="this.classList.add('img-loaded')">
+        </div>
+      </section>
+
+      <section class="search-section reveal" id="search-section">
+        <div class="search-inner">
+        <label class="search-label" for="q">Search Films</label>
+        <div class="search-row">
+          <input type="text" id="q" placeholder="detective murder mystery" autocomplete="off" />
+          <button class="search-btn" onclick="doSearch()">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            Search
+          </button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <span class="filter-label">Genre</span>
+            <select id="genre-sel">
+              <option value="all">All genres</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">From</span>
+            <input type="number" id="year-min" value="1900" min="1900" max="2030" />
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">To</span>
+            <input type="number" id="year-max" value="2020" min="1900" max="2030" />
+          </div>
+        </div>
+
+        <div class="tags-row">
+          <span class="tag-label">Try</span>
+          <span class="tag" onclick="setTag('detective murder mystery')">detective murder mystery</span>
+          <span class="tag" onclick="setTag('neo-noir')">neo-noir</span>
+          <span class="tag" onclick="setTag('classic thriller')">classic thriller</span>
+          <span class="tag" onclick="setTag('space aliens invasion')">space aliens invasion</span>
+          <span class="tag" onclick="setTag('romantic paris love')">romantic paris love</span>
+          <span class="tag" onclick="setTag('heist bank robbery')">heist bank robbery</span>
+          <span class="tag" onclick="setTag('vampire horror castle')">vampire horror castle</span>
+          <span class="tag" onclick="setTag('cowboy outlaw western')">cowboy outlaw western</span>
+        </div>
+        </div><!-- /.search-inner -->
+      </section>
+
+      <!-- Sticky search bar that slides in on scroll -->
+      <div class="search-sticky" id="search-sticky">
+        <span class="sticky-brand"><span>The</span> Film Index</span>
+        <div class="search-row">
+          <input type="text" id="q-sticky" placeholder="Search films…" autocomplete="off" />
+          <button class="search-btn" onclick="doSearchSticky()">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            Search
+          </button>
+        </div>
+      </div>
+
+      <section class="results-section" id="results-section-wrap">
+        <div class="results-header">
+          <span class="results-title">Results</span>
+          <div style="display:flex;align-items:center;gap:1rem">
+            <span class="results-count" id="results-count"></span>
+            <div class="scroll-nav" id="scroll-nav">
+              <button class="scroll-arrow" id="scroll-left" aria-label="scroll left">&#8592;</button>
+              <button class="scroll-arrow" id="scroll-right" aria-label="scroll right">&#8594;</button>
+            </div>
+          </div>
+        </div>
+        <div class="spinner" id="spinner"></div>
+        <p class="state-msg" id="state-msg">Begin with a search above.</p>
+        <div class="results-grid" id="results-grid" style="display:none"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop" onclick="handleBackdropClick(event)">
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+      <div class="modal-poster-col" id="modal-poster-col">
+        <div class="modal-poster-placeholder" id="modal-poster-placeholder">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2" /><path d="M2 8h20M8 2v20" /></svg>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-genre" id="modal-genre"></div>
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-meta" id="modal-meta"></div>
+        <span class="modal-section-label">Plot</span>
+        <p class="modal-plot" id="modal-plot"></p>
+        <span class="modal-section-label">Cast</span>
+        <div class="modal-cast" id="modal-cast"></div>
+        <div class="modal-footer">
+          <span class="modal-score" id="modal-score"></span>
+          <a class="modal-wiki" id="modal-wiki" href="#" target="_blank" rel="noopener" style="display:none">Wikipedia ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Scroll-reveal observer ────────────────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Hero image parallel load ──────────────────────────────────────────
+    const heroImg = document.getElementById('hero-img');
+    if (heroImg && heroImg.complete) heroImg.classList.add('img-loaded');
+
+    // ── Ripple helper ─────────────────────────────────────────────────────
+    function addRipple(el) {
+      el.classList.add('ripple');
+      setTimeout(() => el.classList.remove('ripple'), 420);
+    }
+
+    // Bind ripple to all tags
+    document.querySelectorAll('.tag').forEach(t => {
+      t.addEventListener('click', () => addRipple(t));
+    });
+
+    // ── Sticky search bar ─────────────────────────────────────────────────
+    const searchSection = document.getElementById('search-section');
+    const stickyBar     = document.getElementById('search-sticky');
+    const qSticky       = document.getElementById('q-sticky');
+
+    function doSearchSticky() {
+      const val = qSticky.value.trim();
+      if (!val) return;
+      document.getElementById('q').value = val;
+      doSearch();
+      qSticky.value = val;
+    }
+
+    qSticky.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearchSticky();
+    });
+
+    const stickyObserver = new IntersectionObserver(
+      ([entry]) => {
+        stickyBar.classList.toggle('visible', !entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '-60px 0px 0px 0px' }
+    );
+    stickyObserver.observe(searchSection);
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ── Keyboard ─────────────────────────────────────────────────────────
+    document.getElementById('q').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+    
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ── Search button ripple ──────────────────────────────────────────────
+    document.querySelectorAll('.search-btn').forEach(btn => {
+      btn.addEventListener('click', () => addRipple(btn));
+    });
+
+    // ── Init data ────────────────────────────────────────────────────────
+    (async function init() {
+      try {
+        const [gRes, sRes] = await Promise.all([fetch('/api/genres'), fetch('/api/stats')]);
+        if (gRes.ok) {
+          const { genres } = await gRes.json();
+          const sel = document.getElementById('genre-sel');
+          const cloud = document.getElementById('genre-cloud');
+          genres.forEach(g => {
+            if (g === 'all') return;
+            const opt = document.createElement('option');
+            opt.value = g;
+            opt.textContent = g[0].toUpperCase() + g.slice(1);
+            sel.appendChild(opt);
+            const chip = document.createElement('span');
+            chip.className = 'genre-chip';
+            chip.textContent = g;
+            chip.onclick = () => {
+              addRipple(chip);
+              setTimeout(() => setTag(g), 120);
+            };
+            cloud.appendChild(chip);
+          });
+        }
+        if (sRes.ok) {
+          const d = await sRes.json();
+          const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n;
+          animateCount('stat-films',  d.total_movies, 1200);
+          animateCount('stat-genres', d.total_genres, 900);
+          animateCount('stat-span',   d.year_max - d.year_min, 800);
+          document.getElementById('hero-count').textContent = d.total_movies.toLocaleString();
+          document.getElementById('topbar-stats').innerHTML =
+            `<strong>${d.total_movies.toLocaleString()}</strong> films &nbsp;·&nbsp; ${d.year_min}–${d.year_max}`;
+        }
+      } catch (e) {}
+    })();
+
+    // ── Count-up animation ────────────────────────────────────────────────
+    function animateCount(id, target, duration) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const start = performance.now();
+      const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n;
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = fmt(Math.round(eased * target));
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // ── Search ───────────────────────────────────────────────────────────
+    let currentAbort = null;
+
+    function setTag(t) {
+      document.getElementById('q').value = t;
+      doSearch();
+    }
+
+    async function doSearch() {
+      const q = document.getElementById('q').value.trim();
+      if (!q) return;
+      
+      const genre = document.getElementById('genre-sel').value;
+      const yMin = document.getElementById('year-min').value;
+      const yMax = document.getElementById('year-max').value;
+      
+      if (currentAbort) { currentAbort.abort(); currentAbort = null; }
+      
+      const controller = new AbortController();
+      currentAbort = controller;
+      
+      const grid    = document.getElementById('results-grid');
+      const spinner = document.getElementById('spinner');
+      const msg     = document.getElementById('state-msg');
+      const countEl = document.getElementById('results-count');
+      const wrap    = document.getElementById('results-section-wrap');
+
+      // Fade out existing results
+      if (grid.children.length) {
+        grid.style.transition = 'opacity .2s ease';
+        grid.style.opacity = '0';
+        await new Promise(r => setTimeout(r, 200));
+      }
+
+      grid.style.display = 'none';
+      grid.innerHTML = '';
+      grid.style.opacity = '1';
+      grid.style.transition = '';
+      msg.style.display = 'none';
+      spinner.style.display = 'block';
+      countEl.textContent = '';
+      wrap.classList.add('has-results');
+      
+      let url = `/api/search?q=${encodeURIComponent(q)}&n=12`;
+      if (genre && genre !== 'all') url += `&genre=${encodeURIComponent(genre)}`;
+      if (yMin) url += `&year_min=${yMin}`;
+      if (yMax) url += `&year_max=${yMax}`;
+      
+      try {
+        const r = await fetch(url, { signal: controller.signal });
+        const d = await r.json();
+        currentAbort = null;
+        spinner.style.display = 'none';
+        
+        if (!d.results || !d.results.length) {
+          msg.textContent = 'No results found — try a different query.';
+          msg.style.display = 'block';
+          return;
+        }
+        
+        countEl.textContent = d.total + ' results';
+        d.results.forEach((m, i) => {
+          const card = makeCard(m);
+          card.style.animationDelay = `${i * 60}ms`;
+          grid.appendChild(card);
+        });
+        qSticky.value = q;
+        grid.style.display = 'flex';
+
+        // Show scroll nav
+        const nav = document.getElementById('scroll-nav');
+        nav.classList.add('show');
+        updateArrows();
+
+        // Animate score bars after a tick
+        requestAnimationFrame(() => {
+          grid.querySelectorAll('.card-score-fill').forEach(bar => {
+            requestAnimationFrame(() => bar.classList.add('bar-ready'));
+          });
+        });
+
+        // Scroll to results smoothly
+        setTimeout(() => {
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 120);
+
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        currentAbort = null;
+        spinner.style.display = 'none';
+        msg.textContent = 'Could not reach the server.';
+        msg.style.display = 'block';
+      }
+    }
+
+    // ── Scroll arrow helpers ──────────────────────────────────────────────
+    function updateArrows() {
+      const grid = document.getElementById('results-grid');
+      const left  = document.getElementById('scroll-left');
+      const right = document.getElementById('scroll-right');
+      if (!grid || !left || !right) return;
+      left.disabled  = grid.scrollLeft <= 2;
+      right.disabled = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 2;
+    }
+
+    document.getElementById('scroll-left').addEventListener('click', () => {
+      const grid = document.getElementById('results-grid');
+      grid.scrollBy({ left: -600, behavior: 'smooth' });
+    });
+    document.getElementById('scroll-right').addEventListener('click', () => {
+      const grid = document.getElementById('results-grid');
+      grid.scrollBy({ left: 600, behavior: 'smooth' });
+    });
+    document.getElementById('results-grid').addEventListener('scroll', updateArrows, { passive: true });
+
+    // ── Card builder ─────────────────────────────────────────────────────
+    function makeCard(m) {
+      const card = document.createElement('div');
+      card.className = 'movie-card';
+      
+      let posterHTML;
+      if (m.poster_url) {
+        posterHTML = `<img class="card-poster" src="${esc(m.poster_url)}" alt="${esc(m.title)} poster" loading="lazy" onerror="this.outerHTML=noPostSVG()"/>`;
+      } else {
+        posterHTML = `<div class="card-poster-placeholder">${filmIcon()}</div>`;
+      }
+      
+      const snippet = (m.plot_snippet || '').slice(0, 120).trim();
+      const tooltipText = snippet ? snippet + '…' : '';
+      const pct = Math.round(m.score * 100);
+      
+      card.innerHTML = `
+        ${posterHTML}
+        <div class="card-body">
+          <div class="card-genre">${esc(m.genre)}</div>
+          <div class="card-title">${esc(m.title)}</div>
+          <div class="card-meta">${m.year} · dir. ${esc(m.director)}</div>
+          <div class="card-score-bar">
+            <div class="card-score-fill" style="--target-width:${pct}%"></div>
+          </div>
+        </div>
+        ${tooltipText ? `<div class="card-tooltip">${esc(tooltipText)}</div>` : ''}
+      `;
+      
+      card.addEventListener('click', () => {
+        card.style.transform = 'scale(.97)';
+        setTimeout(() => { card.style.transform = ''; }, 120);
+        setTimeout(() => openModal(m), 80);
+      });
+      return card;
+    }
+
+    function filmIcon() {
+      return `<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>`;
+    }
+
+    function noPostSVG() {
+      return `<div class="card-poster-placeholder">${filmIcon()}</div>`;
+    }
+
+    // ── Modal ─────────────────────────────────────────────────────────────
+    function openModal(m) {
+      const col = document.getElementById('modal-poster-col');
+      if (m.poster_url) {
+        col.innerHTML = `<img src="${esc(m.poster_url)}" alt="${esc(m.title)} poster" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+      } else {
+        col.innerHTML = `<div class="modal-poster-placeholder">${filmIcon()}</div>`;
+      }
+      
+      document.getElementById('modal-genre').textContent = m.genre || '';
+      document.getElementById('modal-title').textContent = m.title || '';
+      document.getElementById('modal-meta').textContent = `${m.year} · dir. ${m.director || 'Unknown'}`;
+      document.getElementById('modal-plot').textContent = m.plot_snippet || 'No plot summary available.';
+      document.getElementById('modal-score').textContent = `Relevance: ${(m.score * 100).toFixed(1)}%`;
+      
+      const castEl = document.getElementById('modal-cast');
+      castEl.innerHTML = '';
+      (m.cast || []).forEach((c, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'modal-cast-chip';
+        chip.textContent = c;
+        chip.style.opacity = '0';
+        chip.style.transform = 'translateY(6px)';
+        chip.style.transition = `opacity .3s ease ${i * 50}ms, transform .3s ease ${i * 50}ms`;
+        castEl.appendChild(chip);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          chip.style.opacity = '1';
+          chip.style.transform = 'translateY(0)';
+        }));
+      });
+      
+      const wiki = document.getElementById('modal-wiki');
+      if (m.wiki_url) { wiki.href = m.wiki_url; wiki.style.display = ''; }
+      else { wiki.style.display = 'none'; }
+      
+      const backdrop = document.getElementById('modal-backdrop');
+      backdrop.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => backdrop.classList.add('open')));
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById('modal-backdrop');
+      backdrop.classList.remove('open');
+      setTimeout(() => {
+        backdrop.style.display = 'none';
+        document.body.style.overflow = '';
+      }, 280);
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target === document.getElementById('modal-backdrop')) closeModal();
+    }
+
+    document.getElementById('modal-backdrop').style.display = 'none';
+  </script>
+</body>
+</html>
